@@ -1,18 +1,18 @@
 # yolov7-onnx-infer
 Inference with yolov7's onnx model
 
-## Dev Env
+## 1. Dev Env
 ```bash
 pip install -U pip && pip install -r requirements.txt
 ```
 
-## Onnx Model Download
+## 2. Onnx Model Download
 ```
 cd model
 sh download_yolov7_tiny_onnx.sh #or download_yolov7_onnx.sh
 ```
 
-## Inference
+## 3. Inference
 ### Image
 ```bash
 python onnx_inference.py -i <image_path> -m <onnx_model_path>
@@ -21,3 +21,6 @@ python onnx_inference.py -i <image_path> -m <onnx_model_path>
 ```bash
 python onnx_inference.py -mo video -i <video_path> -m <onnx_model_path>
 ```
+## 4. References
+* [yolov7](https://github.com/WongKinYiu/yolov7)
+* [yolov7/tools/YOLOv7onnx.ipynb](https://github.com/WongKinYiu/yolov7/blob/main/tools/YOLOv7onnx.ipynb)
