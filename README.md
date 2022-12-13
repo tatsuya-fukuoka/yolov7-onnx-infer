@@ -24,3 +24,8 @@ python onnx_inference.py -mo video -i <video_path> -m <onnx_model_path>
 ## 4. References
 * [yolov7](https://github.com/WongKinYiu/yolov7)
 * [yolov7/tools/YOLOv7onnx.ipynb](https://github.com/WongKinYiu/yolov7/blob/main/tools/YOLOv7onnx.ipynb)
+
+## 5. About me
+* [Blog](https://chantastu.hatenablog.com/)
+* [Twitter](https://twitter.com/chantatsu_blog)
+* [Youtube](https://www.youtube.com/channel/UCH9dyrHb8qbEKr_oPsCWq2Q)
