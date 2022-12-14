@@ -39,6 +39,20 @@ def make_parser():
         help="Path to your output directory.",
     )
     parser.add_argument(
+        "-s",
+        "--score_thr",
+        type=float,
+        default=0.3,
+        help="Score threshould to filter the result.",
+    )
+    parser.add_argument(
+        "-e",
+        "--extract",
+        type=str,
+        default=None,
+        help="extract a class",
+    )
+    parser.add_argument(
         "-c",
         "--cuda",
         action="store_true",
@@ -55,7 +69,7 @@ def infer_image(args,yolov7):
     output_path = os.path.join(args.output_dir, os.path.basename(args.input_path))
     
     start = time.time()
-    result_img = yolov7.inference(img)
+    result_img = yolov7.inference(img, args)
     logging.info(f'Infer time: {(time.time()-start)*1000:.2f} [ms]')
     cv2.imwrite(output_path, result_img)
     
@@ -85,7 +99,7 @@ def infer_video(args,yolov7):
             break
         
         start = time.time()
-        result_img = yolov7.inference(img)
+        result_img = yolov7.inference(img, args)
         logging.info(f'Frame: {frame_id}/{frame_count}, Infer time: {(time.time()-start)*1000:.2f} [ms]')
         
         writer.write(result_img)
