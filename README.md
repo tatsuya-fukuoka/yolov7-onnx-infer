@@ -19,7 +19,7 @@ python onnx_inference.py -i <image_path> -m <onnx_model_path> -e person -s 0.6
 ```
 ### Video
 ```bash
-python onnx_inference.py -mo video -i <video_path> -m <onnx_model_path>  -e person -s 0.6
+python onnx_inference.py -mo video -i <video_path> -m <onnx_model_path> -e person -s 0.6
 ```
 ## 4. References
 * [yolov7](https://github.com/WongKinYiu/yolov7)
