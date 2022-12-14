@@ -16,11 +16,11 @@ class YOLOV7ONNX(object):
         providers = ['CUDAExecutionProvider', 'CPUExecutionProvider'] if cuda else ['CPUExecutionProvider']
         self.session = ort.InferenceSession(model_path, providers=providers)
     
-    def inference(self, img):
+    def inference(self, img, args):
         outname, inp, ratio, dwdh = self.preproc(img)
         outputs = self.session.run(outname, inp)[0]
         
-        reslut_img = self.visual(img, outputs, ratio, dwdh)
+        reslut_img = self.visual(img, outputs, ratio, dwdh, args)
         return reslut_img
 
     def preproc(self,img):
@@ -70,40 +70,58 @@ class YOLOV7ONNX(object):
         im = cv2.copyMakeBorder(im, top, bottom, left, right, cv2.BORDER_CONSTANT, value=color)  # add border
         return im, r, (dw, dh)
     
-    def visual(self, img, outputs, ratio, dwdh):
+    def visual(self, img, outputs, ratio, dwdh, args):
         ori_images = [img.copy()]
-
-        for i,(batch_id,x0,y0,x1,y1,cls_id,score) in enumerate(outputs):
-            image = ori_images[int(batch_id)]
-            
-            box = np.array([x0,y0,x1,y1])
-            box -= np.array(dwdh*2)
-            box /= ratio
-            box = box.round().astype(np.int32).tolist()
-            
-            #class_name list
-            names = list(COCO_CLASSES)
-            
-            cls_id = int(cls_id)
-            score = round(float(score),3)
-            name = names[cls_id]
-            
-            color = (_COLORS[cls_id] * 255).astype(np.uint8).tolist()
-            text = '{}:{:.1f}%'.format(names[cls_id], score * 100)
-            txt_color = (0, 0, 0) if np.mean(_COLORS[cls_id]) > 0.5 else (255, 255, 255)
-            font = cv2.FONT_HERSHEY_SIMPLEX
-            
-            txt_size = cv2.getTextSize(text, font, 0.4, 1)[0]
-            txt_bk_color = (_COLORS[cls_id] * 255 * 0.7).astype(np.uint8).tolist()
-            
-            cv2.rectangle(image,box[:2],box[2:],color,2)
-            cv2.rectangle(
-                image,
-                (box[0], box[1] + 1),
-                (box[0] + txt_size[0] + 1, box[1] + int(1.5*txt_size[1])),
-                txt_bk_color,
-                -1
-            )
-            cv2.putText(image,text,(box[0], box[1] + txt_size[1]),font,0.4,txt_color,thickness=1) 
         
+        if args.extract is not None:
+            extract_cls_i = COCO_CLASSES.index(args.extract)
+            
+            for i,(batch_id,x0,y0,x1,y1,cls_id,score) in enumerate(outputs):
+                if int(cls_id) == extract_cls_i:
+                    if args.score_thr is not None:
+                        if score > args.score_thr:
+                            self.vis(ori_images, batch_id,x0,y0,x1,y1,cls_id,score, ratio, dwdh, args)
+                    else:
+                        self.vis(ori_images, batch_id,x0,y0,x1,y1,cls_id,score, ratio, dwdh, args)
+        else:
+            for i,(batch_id,x0,y0,x1,y1,cls_id,score) in enumerate(outputs):
+                if args.score_thr is not None:
+                    if score > args.score_thr:
+                        self.vis(ori_images, batch_id,x0,y0,x1,y1,cls_id,score, ratio, dwdh, args)
+                else:
+                    self.vis(ori_images, batch_id,x0,y0,x1,y1,cls_id,score, ratio, dwdh, args)
+            
         return ori_images[0]
+    
+    def vis(self, ori_images, batch_id,x0,y0,x1,y1,cls_id,score, ratio, dwdh, args):
+        image = ori_images[int(batch_id)]
+        
+        box = np.array([x0,y0,x1,y1])
+        box -= np.array(dwdh*2)
+        box /= ratio
+        box = box.round().astype(np.int32).tolist()
+        
+        #class_name list
+        names = list(COCO_CLASSES)
+        
+        cls_id = int(cls_id)
+        score = round(float(score),3)
+        name = names[cls_id]
+        
+        color = (_COLORS[cls_id] * 255).astype(np.uint8).tolist()
+        text = '{}:{:.1f}%'.format(names[cls_id], score * 100)
+        txt_color = (0, 0, 0) if np.mean(_COLORS[cls_id]) > 0.5 else (255, 255, 255)
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        
+        txt_size = cv2.getTextSize(text, font, 0.4, 1)[0]
+        txt_bk_color = (_COLORS[cls_id] * 255 * 0.7).astype(np.uint8).tolist()
+        
+        cv2.rectangle(image,box[:2],box[2:],color,2)
+        cv2.rectangle(
+            image,
+            (box[0], box[1] + 1),
+            (box[0] + txt_size[0] + 1, box[1] + int(1.5*txt_size[1])),
+            txt_bk_color,
+            -1
+        )
+        cv2.putText(image,text,(box[0], box[1] + txt_size[1]),font,0.4,txt_color,thickness=1) 
