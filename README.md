@@ -15,11 +15,11 @@ sh download_yolov7_tiny_onnx.sh #or download_yolov7_onnx.sh
 ## 3. Inference
 ### Image
 ```bash
-python onnx_inference.py -i <image_path> -m <onnx_model_path>
+python onnx_inference.py -i <image_path> -m <onnx_model_path> -e person -s 0.6
 ```
 ### Video
 ```bash
-python onnx_inference.py -mo video -i <video_path> -m <onnx_model_path>
+python onnx_inference.py -mo video -i <video_path> -m <onnx_model_path>  -e person -s 0.6
 ```
 ## 4. References
 * [yolov7](https://github.com/WongKinYiu/yolov7)
