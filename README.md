@@ -6,8 +6,22 @@ Inference with yolov7's onnx model
 * [yolov7.onnx](https://drive.google.com/file/d/1pL-VhELoJMIwT5H9hGi5y0wgztfb0CsI/view?usp=share_link)
 
 ## 1. Dev Env
+### 1.1 pip install
 ```bash
 pip install -U pip && pip install -r requirements.txt
+```
+### 1.2 Docker
+Dockerfile
+```bash
+docker build -t tatsuya060504/yolov7-onnx-infer:raspberrypi .
+```
+Docker Hub
+```bash
+docker pull tatsuya060504/yolov7-onnx-infer:raspberrypi
+```
+docker run
+```bash
+docker run -it --name=yolov7-onnx-infer -v /home/tatsu/yolov7-onnx-infer:/home tatsuya060504/yolov7-onnx-infer:raspberrypi
 ```
 
 ## 2. Onnx Model Download
