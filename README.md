@@ -1,6 +1,10 @@
 # yolov7-onnx-infer
 Inference with yolov7's onnx model
 
+## onnx model
+* [yolov7-tiny.onnx](https://drive.google.com/file/d/1-P3RpFnbXv_a99EW_wiBCUcZ7ssJzEnj/view?usp=share_link)
+* [yolov7.onnx](https://drive.google.com/file/d/1pL-VhELoJMIwT5H9hGi5y0wgztfb0CsI/view?usp=share_link)
+
 ## 1. Dev Env
 ```bash
 pip install -U pip && pip install -r requirements.txt
