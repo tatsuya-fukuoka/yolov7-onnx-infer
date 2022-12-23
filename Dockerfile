@@ -1,4 +1,5 @@
 FROM debian:stable-slim
+USER root
 
 LABEL version="1.0"
 LABEL description="yolov7をonnxモデルで実行"
