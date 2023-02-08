@@ -5,7 +5,8 @@ import cv2
 import time
 import logging
 
-from  yolov7.utils import YOLOV7ONNX
+from yolov7.utils import YOLOV7ONNX
+from yolov7.timer import Timer
 
 
 def make_parser():
@@ -98,16 +99,21 @@ def infer_video(args,yolov7):
         save_path, cv2.VideoWriter_fourcc(*"mp4v"), fps, (int(width), int(height))
         )
     
+    timer = Timer()
     frame_id = 1
     while True:
+        if frame_id % 20 == 0:
+            logging.info('Processing frame {} ({:.2f} fps)'.format(frame_id, 1. / max(1e-5, timer.average_time)))
+
         ret_val, img = cap.read()
         if not ret_val:
             break
         
         start = time.time()
-        result_img = yolov7.inference(img, args)
-        logging.info(f'Frame: {frame_id}/{frame_count}, Infer time: {(time.time()-start)*1000:.2f} [ms]')
+        result_img = yolov7.inference(img, timer, args)
+        #logging.info(f'Frame: {frame_id}/{frame_count}, Infer time: {(time.time()-start)*1000:.2f} [ms]')
         
+        timer.toc()
         writer.write(result_img)
         
         ch = cv2.waitKey(1)

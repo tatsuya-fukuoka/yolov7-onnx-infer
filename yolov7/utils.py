@@ -1,3 +1,5 @@
+import time
+
 import cv2
 import onnxruntime as ort
 import random
@@ -16,10 +18,11 @@ class YOLOV7ONNX(object):
         providers = ['CUDAExecutionProvider', 'CPUExecutionProvider'] if cuda else ['CPUExecutionProvider']
         self.session = ort.InferenceSession(model_path, providers=providers)
     
-    def inference(self, img, args):
+    def inference(self, img, timer, args):
+        timer.tic()
         outname, inp, ratio, dwdh = self.preproc(img)
         outputs = self.session.run(outname, inp)[0]
-        
+        timer.toc()
         reslut_img = self.visual(img, outputs, ratio, dwdh, args)
         return reslut_img
 
@@ -124,4 +127,4 @@ class YOLOV7ONNX(object):
             txt_bk_color,
             -1
         )
-        cv2.putText(image,text,(box[0], box[1] + txt_size[1]),font,0.4,txt_color,thickness=1) 
+        cv2.putText(image,text,(box[0], box[1] + txt_size[1]),font,0.4,txt_color,thickness=1)
