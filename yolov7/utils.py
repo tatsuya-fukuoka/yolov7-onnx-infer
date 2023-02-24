@@ -9,26 +9,29 @@ from yolov7.coco_classes import COCO_CLASSES
 from yolov7.color_list import _COLORS
 
 
-class YOLOV7ONNX(object):
+class Yolov7onnx(object):
     def __init__(
         self,
         model_path,
+        score_thr,
+        extract_class,
         cuda
     ):
+        self.score_thr = score_thr
+        self.extract = extract_class
         providers = ['CUDAExecutionProvider', 'CPUExecutionProvider'] if cuda else ['CPUExecutionProvider']
         self.session = ort.InferenceSession(model_path, providers=providers)
     
-    def inference(self, img, timer, args):
-        timer.tic()
-        outname, inp, ratio, dwdh = self.preproc(img)
+    def __call__(self, img):
+        outname, inp, ratio, dwdh = self._preproc(img)
         outputs = self.session.run(outname, inp)[0]
-        timer.toc()
-        reslut_img = self.visual(img, outputs, ratio, dwdh, args)
+        reslut_img = self._visual(img, outputs, ratio, dwdh)
+
         return reslut_img
 
-    def preproc(self,img):
+    def _preproc(self,img):
         image = img.copy()
-        image, ratio, dwdh = self.letterbox(image, auto=False)
+        image, ratio, dwdh = self._letterbox(image, auto=False)
         image = image.transpose((2, 0, 1))
         image = np.expand_dims(image, 0)
         image = np.ascontiguousarray(image)
@@ -45,7 +48,7 @@ class YOLOV7ONNX(object):
         
         return outname, inp, ratio, dwdh
     
-    def letterbox(self, im, new_shape=(640, 640), color=(114, 114, 114), auto=True, scaleup=True, stride=32):
+    def _letterbox(self, im, new_shape=(640, 640), color=(114, 114, 114), auto=True, scaleup=True, stride=32):
         # Resize and pad image while meeting stride-multiple constraints
         shape = im.shape[:2]  # current shape [height, width]
         if isinstance(new_shape, int):
@@ -73,30 +76,30 @@ class YOLOV7ONNX(object):
         im = cv2.copyMakeBorder(im, top, bottom, left, right, cv2.BORDER_CONSTANT, value=color)  # add border
         return im, r, (dw, dh)
     
-    def visual(self, img, outputs, ratio, dwdh, args):
+    def _visual(self, img, outputs, ratio, dwdh):
         ori_images = [img.copy()]
         
-        if args.extract is not None:
-            extract_cls_i = COCO_CLASSES.index(args.extract)
+        if self.extract is not None:
+            extract_cls_i = COCO_CLASSES.index(self.extract)
             
             for i,(batch_id,x0,y0,x1,y1,cls_id,score) in enumerate(outputs):
                 if int(cls_id) == extract_cls_i:
-                    if args.score_thr is not None:
-                        if score > args.score_thr:
-                            self.vis(ori_images, batch_id,x0,y0,x1,y1,cls_id,score, ratio, dwdh, args)
+                    if self.score_thr is not None:
+                        if score > self.score_thr:
+                            self._vis(ori_images, batch_id,x0,y0,x1,y1,cls_id,score, ratio, dwdh)
                     else:
-                        self.vis(ori_images, batch_id,x0,y0,x1,y1,cls_id,score, ratio, dwdh, args)
+                        self._vis(ori_images, batch_id,x0,y0,x1,y1,cls_id,score, ratio, dwdh)
         else:
             for i,(batch_id,x0,y0,x1,y1,cls_id,score) in enumerate(outputs):
-                if args.score_thr is not None:
-                    if score > args.score_thr:
-                        self.vis(ori_images, batch_id,x0,y0,x1,y1,cls_id,score, ratio, dwdh, args)
+                if self.score_thr is not None:
+                    if score > self.score_thr:
+                        self._vis(ori_images, batch_id,x0,y0,x1,y1,cls_id,score, ratio, dwdh)
                 else:
-                    self.vis(ori_images, batch_id,x0,y0,x1,y1,cls_id,score, ratio, dwdh, args)
+                    self._vis(ori_images, batch_id,x0,y0,x1,y1,cls_id,score, ratio, dwdh)
             
         return ori_images[0]
     
-    def vis(self, ori_images, batch_id,x0,y0,x1,y1,cls_id,score, ratio, dwdh, args):
+    def _vis(self, ori_images, batch_id,x0,y0,x1,y1,cls_id,score, ratio, dwdh):
         image = ori_images[int(batch_id)]
         
         box = np.array([x0,y0,x1,y1])
@@ -104,7 +107,7 @@ class YOLOV7ONNX(object):
         box /= ratio
         box = box.round().astype(np.int32).tolist()
         
-        #class_name list
+        # class_name list
         names = list(COCO_CLASSES)
         
         cls_id = int(cls_id)
