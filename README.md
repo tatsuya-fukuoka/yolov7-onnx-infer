@@ -12,8 +12,40 @@ pip install -U pip && pip install -r requirements.txt
 ```
 ### 1.2 Docker
 Dockerfile
+#### Ubuntu 20.04
+```txt
+FROM ubuntu:20.04
+USER root
+
+RUN ln -sf /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
+
+LABEL version="1.0"
+LABEL description="yolov7-onnx-inferの動作環境を構築"
+
+RUN apt-get update && \
+    apt-get -y install python3-pip && \
+    apt-get -y install git && \
+    apt-get -y install libgl1-mesa-dev && \
+    apt-get -y install libglib2.0-0 && \
+    pip install -U pip && \
+    pip install opencv-python onnxruntime
+```
+#### Debian
+```txt
+FROM debian:stable-slim
+USER root
+
+LABEL version="1.0"
+LABEL description="yolov7をonnxモデルで実行"
+
+RUN apt-get update
+RUN apt-get -y install pip
+RUN apt-get -y install libgl1-mesa-dev && apt-get -y install libglib2.0-0
+RUN pip install -U pip
+RUN pip install --no-cache-dir onnxruntime==1.13.1 opencv-python==4.6.0.66
+```
 ```bash
-docker build -t tatsuya060504/yolov7-onnx-infer:raspberrypi .
+docker build -t tatsuya060504/yolov7-onnx-infer:v1.0.0 .
 ```
 [Docker Hub](https://hub.docker.com/repository/docker/tatsuya060504/yolov7-onnx-infer)
 ```bash
