@@ -1,12 +1,11 @@
-import argparse
 import os
-
-import cv2
 import time
 import logging
+import argparse
 
-from yolov7.utils import YOLOV7ONNX
-from yolov7.timer import Timer
+import cv2
+
+from yolov7.utils import Yolov7onnx
 
 
 def make_parser():
@@ -70,13 +69,12 @@ def make_parser():
 
 def infer_image(args,yolov7):
     img = cv2.imread(args.input_path)
-    #img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     
     os.makedirs(args.output_dir, exist_ok=True)
     output_path = os.path.join(args.output_dir, os.path.basename(args.input_path))
     
     start = time.time()
-    result_img = yolov7.inference(img, args)
+    result_img = yolov7(img)
     logging.info(f'Infer time: {(time.time()-start)*1000:.2f} [ms]')
     cv2.imwrite(output_path, result_img)
     
@@ -99,21 +97,16 @@ def infer_video(args,yolov7):
         save_path, cv2.VideoWriter_fourcc(*"mp4v"), fps, (int(width), int(height))
         )
     
-    timer = Timer()
     frame_id = 1
     while True:
-        if frame_id % 20 == 0:
-            logging.info('Processing frame {} ({:.2f} fps)'.format(frame_id, 1. / max(1e-5, timer.average_time)))
-
         ret_val, img = cap.read()
         if not ret_val:
             break
         
         start = time.time()
-        result_img = yolov7.inference(img, timer, args)
-        #logging.info(f'Frame: {frame_id}/{frame_count}, Infer time: {(time.time()-start)*1000:.2f} [ms]')
+        result_img = yolov7(img)
+        logging.info(f'Frame: {frame_id}/{frame_count}, Infer time: {(time.time()-start)*1000:.2f} [ms]')
         
-        timer.toc()
         writer.write(result_img)
         
         ch = cv2.waitKey(1)
@@ -152,7 +145,7 @@ def infer_webcam(args,yolov7):
             break
         
         start = time.time()
-        result_img = yolov7.inference(img, args)
+        result_img = yolov7(img)
         logging.info(f'Infer time: {(time.time()-start)*1000:.2f} [ms]')
         
         #cv2.imshow('windosw', result_img)
@@ -175,8 +168,10 @@ def main():
     args = make_parser().parse_args()
     logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s:%(name)s - %(message)s")
     
-    yolov7 = YOLOV7ONNX(
+    yolov7 = Yolov7onnx(
         model_path = args.model,
+        score_thr = args.score_thr,
+        extract_class = args.extract,
         cuda = args.cuda,
     )
     
