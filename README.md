@@ -13,7 +13,7 @@ pip install -U pip && pip install -r requirements.txt
 ### 1.2 Docker
 #### Dockerfile
 Ubuntu 20.04
-```txt
+```Dockerfile
 FROM ubuntu:20.04
 USER root
 
@@ -31,7 +31,7 @@ RUN apt-get update && \
     pip install opencv-python onnxruntime
 ```
 Debian
-```txt
+```Dockerfile
 FROM debian:stable-slim
 USER root
 
