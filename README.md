@@ -57,7 +57,7 @@ docker pull tatsuya060504/yolov7-onnx-infer:raspberrypi
 ```
 docker run
 ```bash
-docker run -it --name=yolov7-onnx-infer -v /home/tatsu/yolov7-onnx-infer:/home tatsuya060504/yolov7-onnx-infer:raspberrypi
+docker run -it --name=yolov7-onnx-infer -v $(pwd):/home tatsuya060504/yolov7-onnx-infer:raspberrypi
 ```
 
 ## 2. Onnx Model Download
