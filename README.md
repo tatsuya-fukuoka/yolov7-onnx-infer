@@ -61,6 +61,7 @@ docker run -it --name=yolov7-onnx-infer -v $(pwd):/home tatsuya060504/yolov7-onn
 ```
 
 ## 2. Onnx Model Download
+You can download the yolox-onnx model by executing the shell script in the model folder.
 ```
 cd model
 sh download_yolov7_tiny_onnx.sh #or download_yolov7_onnx.sh
