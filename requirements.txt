@@ -4,7 +4,7 @@ humanfriendly==10.0
 mpmath==1.2.1
 numpy==1.23.5
 onnxruntime==1.13.1
-opencv-python==4.6.0.66
+opencv-python>=4.6.0.66
 packaging==22.0
 protobuf==4.21.11
 pyreadline3==3.4.1
